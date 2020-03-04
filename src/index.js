@@ -8,37 +8,24 @@ function expressionCalculator(expr) {
     let leftBracketsCount = checkBrackets(expression, /[\(]/g);
     let rightBracketsCount = checkBrackets(expression, /[)]/g);  
     let bracketsCount = leftBracketsCount;
+    let result = 0;
 
     if (leftBracketsCount !== rightBracketsCount) throw Error("ExpressionError: Brackets must be paired"); 
 
-    function checkBrackets(string, regBracket) {
-        try {
-            return string.match(regBracket).length
-        } catch {
-            return 0;
-        }
-    }
-      
     while(bracketsCount > 0) {
-        let indexLeftBracket = expression.split('').indexOf('(');
-        let indexRightBracket = expression.split('').indexOf(')');
+        let indexLeftBracket = expression.split('').lastIndexOf('(');
+        let indexRightBracket = expression.split('').indexOf(')', indexLeftBracket);
         let deleteCount = indexRightBracket - indexLeftBracket + 1;
         let expressionInsideBrackets = expression.slice(indexLeftBracket + 1, indexRightBracket);
-        
+        let resultInsideBrackets = getSum(expressionInsideBrackets);
 
         expression = expression.split('');
-        expression.splice(indexLeftBracket, deleteCount, getSum(expressionInsideBrackets));
+        expression.splice(indexLeftBracket, deleteCount, resultInsideBrackets);
         expression = expression.join('');
         bracketsCount--;
     }
     
-    let result = getSum(expression);
-
-    if(!isFinite(result)) {
-        throw Error('TypeError: Division by zero.')
-    } else {
-        return result;
-    }
+    return result = getSum(expression);
 
     function getSum(expression) {
         return expression.split('+')
@@ -59,8 +46,21 @@ function expressionCalculator(expr) {
     }
 
     function getDivision(expression) {
-        return expression.split('/')
-                         .reduce( (acum, value) => acum / value);
+        let resultDivision = expression.split('/')
+                                       .reduce( (acum, value) => acum / value);
+        if(!isFinite(resultDivision)) {
+        throw Error('TypeError: Division by zero.')
+        } else {
+            return resultDivision;
+        }
+    }
+
+    function checkBrackets(string, regBracket) {
+        try {
+            return string.match(regBracket).length
+        } catch {
+            return 0;
+        }
     }
 }
 
